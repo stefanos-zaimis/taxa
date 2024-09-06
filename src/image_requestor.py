@@ -1,16 +1,67 @@
 import requests
 import os
+import random
+
+def select_random_image(taxon_key, limit=100000):
+    """
+    Fetches images for a given taxon key from the GBIF API and randomly selects one of them
+    
+    Params:
+    taxon key (int): The taxon number used by GBIF for the specific rank (e.g. 1674437)
+    limit (int): The number of images to randomly select from (default is 100000)
+    
+    Returns:
+    tuple: A tuple of the form (species_name, image_url)"""
+
+    # Base URL for GBIF occurrence search API
+    base_url = 'https://api.gbif.org/v1/occurrence/search'
+
+    # Query parameters
+    params = {
+        'mediaType': 'StillImage',
+        'taxonKey': taxon_key,  # Change to your species name
+        'limit': limit
+    }
+
+    try:
+        # Make the request
+        response = requests.get(base_url, params=params)
+        data = response.json()
+
+        results = []
+
+        # Extract image URLs
+        id = 1
+        if 'results' in data:
+            for occurrence in data['results']:
+                if 'media' in occurrence:
+                    for media in occurrence['media']:
+                        print(id)
+                        id+=1
+                        scientific_name = occurrence.get('species', 'Unidentified species')
+                        if media['identifier'] != None:
+                            image_url = media['identifier']
+                            results.append((scientific_name, image_url))
+                        if len(results) >= limit:
+                            return random.choice(results)
+        
+        return random.choice(results)
+    
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return []
 
 def request_images(taxon_key, image_number=10):
     """
-    Fetches images for a given species name from the GBIF API
+    Fetches images for a given taxon key from the GBIF API
     
     Params:
-    species_name (str): The scientific name of the species (e.g. Dissosteira carolina (Linnaeus, 1758))
-    image_number (int): The number of image URLs to return (default is 10)
+    taxon key (int): The taxon number used by GBIF for the specific rank (e.g. 1674437)
+    image_number (int): The number of image tuples to return (default is 10)
     
     Returns:
     list: A list of tuples of the form (species_name, image_url)"""
+
     print("in here")
     # Base URL for GBIF occurrence search API
     base_url = 'https://api.gbif.org/v1/occurrence/search'
