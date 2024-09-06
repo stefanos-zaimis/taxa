@@ -75,9 +75,12 @@ while species_name == "":
     #Get Image
     usage_key = random_genus['key']
     print("Taxon key:",usage_key)
-    image_info = imgr.request_images(usage_key)
-    species_name = image_info[0][0]
-    
+    image_info = imgr.request_images(usage_key, 1)
+    if image_info and len(image_info) > 0:
+        species_name = image_info[0][0]
+        for idx, (species_name, image_url) in enumerate(image_info):
+            imgr.save_image((species_name, image_url), idx)
+        break
 
 
 print("Species name is: ------------------------------ " + species_name + "-------------------------------------------------------s")
@@ -93,7 +96,7 @@ choices = [family['scientificName']] + [choice['scientificName'] for choice in o
 random.shuffle(choices)  # Shuffle the options
 
 # Assuming the image was saved in worker.py
-image_path = os.path.join("images", species_name + ".png")
+image_path = os.path.join("images", species_name.replace(' ', '_') + "_0.jpg")
 
 # Display the GUI
 show_question(image_path, choices, family['scientificName'])
