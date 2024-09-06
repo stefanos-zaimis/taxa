@@ -1,3 +1,4 @@
 pygbif
 selenium
 pillow
+requests
