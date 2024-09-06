@@ -1,0 +1,3 @@
+pygbif
+selenium
+pillow
