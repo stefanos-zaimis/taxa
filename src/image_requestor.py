@@ -26,19 +26,21 @@ def request_images(taxon_key, image_number=10):
         response = requests.get(base_url, params=params)
         data = response.json()
 
-        image_urls = []
+        results = []
 
         # Extract image URLs
         if 'results' in data:
             for occurrence in data['results']:
                 if 'media' in occurrence:
                     for media in occurrence['media']:
-                        print(media)
-                        image_urls.append(media['identifier'])
-                        if len(image_urls) >= image_number:
-                            return image_urls
+                        scientific_name = occurrence.get('species', 'Unknown species')
+                        if media['identifier'] != None:
+                            image_url = media['identifier']
+                            results.append((scientific_name, image_url))
+                        if len(results) >= image_number:
+                            return results
         
-        return image_urls
+        return results
     
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
