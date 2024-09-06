@@ -39,13 +39,15 @@ def select_random_image(taxon_key, limit=100000):
                         print(id)
                         id+=1
                         scientific_name = occurrence.get('species', 'Unidentified species')
-                        if media['identifier'] != None:
-                            image_url = media['identifier']
+                        image_url = media.get('identifier')
+                        if image_url:
                             results.append((scientific_name, image_url))
-                        if len(results) >= limit:
+
+                        if results and len(results) >= limit:
                             return random.choice(results)
-        
-        return random.choice(results)
+        if results and len(results)>0:
+            return random.choice(results)
+        return ("", "")
     
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
@@ -86,8 +88,8 @@ def request_images(taxon_key, image_number=10):
                 if 'media' in occurrence:
                     for media in occurrence['media']:
                         scientific_name = occurrence.get('species', 'Unidentified species')
-                        if media['identifier'] != None:
-                            image_url = media['identifier']
+                        image_url = media.get('identifier')
+                        if image_url:
                             results.append((scientific_name, image_url))
                         if len(results) >= image_number:
                             return results
