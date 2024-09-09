@@ -75,12 +75,10 @@ while species_name == "":
     #Get Image
     usage_key = random_genus['key']
     print("Taxon key:",usage_key)
-    image_info = imgr.request_images(usage_key, 1)
-    if image_info and len(image_info) > 0:
-        species_name = image_info[0][0]
-        for idx, (species_name, image_url) in enumerate(image_info):
-            imgr.save_image((species_name, image_url), idx)
-        break
+    image_info = imgr.select_random_image(usage_key)
+    if image_info:
+        species_name = image_info[0]
+        imgr.save_image(image_info, 0)
 
 
 print("Species name is: ------------------------------ " + species_name + "-------------------------------------------------------s")
