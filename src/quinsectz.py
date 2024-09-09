@@ -25,6 +25,34 @@ def species_in_family(family_name, limit=100000, status="accepted"):
 
     return species_list['results']
 
+def species_in_family_paginated(family_name, limit=100000, status="accepted"):
+
+    # Search for the family in GBIF to get the usageKey
+    family_search = species.name_backbone(name=family_name, rank='family')
+
+    # Get the family key (an identifier used by GBIF)
+    family_key = family_search['usageKey']
+
+    species_list = []
+    offset = 0
+    batch_size = 1000 # Maximum allowed by GBIF
+    retrieved_count = 0
+
+    while retrieved_count < limit:
+        current_limit = min(batch_size, limit - retrieved_count)
+
+        response = species.name_lookup(higherTaxonKey=family_key, rank='species', limit=current_limit, offset=offset, status=status)
+
+        species_list.extend(response['results'])
+
+        retrieved_count += len(response['results'])
+        offset += len(response['results'])
+
+        if len(response['results']) == 0:
+            break
+
+    return species_list
+
 def genus_in_family(family_name, limit=100000, status="accepted"):
 
     # Search for the family in GBIF to get the usageKey
