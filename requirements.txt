@@ -2,3 +2,4 @@ pygbif
 selenium
 pillow
 requests
+aiohttp
