@@ -36,8 +36,6 @@ def select_random_image(taxon_key, limit=100000):
             for occurrence in data['results']:
                 if 'media' in occurrence:
                     for media in occurrence['media']:
-                        print(id)
-                        id+=1
                         scientific_name = occurrence.get('species', 'Unidentified species')
                         image_url = media.get('identifier')
                         if image_url:
@@ -93,7 +91,7 @@ def request_images(taxon_key, image_number=10):
                             results.append((scientific_name, image_url))
                         if len(results) >= image_number:
                             return results
-        
+
         return results
     
     except requests.exceptions.RequestException as e:

@@ -79,7 +79,6 @@ while species_name == "":
     if image_info:
         species_name = image_info[0]
         imgr.save_image(image_info, 0)
-        break
 
 
 print("Species name is: ------------------------------ " + species_name + "-------------------------------------------------------s")
