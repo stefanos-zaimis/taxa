@@ -1,4 +1,108 @@
 import requests
+from dataclasses import dataclass, asdict
+from typing import List, Optional
+from enum import Enum
+
+class Code(Enum):
+    BACTERIAL = "BACTERIAL"
+    BOTANICAL = "BOTANICAL"
+    CULTIVARS = "CULTIVARS"
+    PHYTO = "PHYTO"
+    VIRUS = "VIRUS"
+    ZOOLOGICAL = "ZOOLOGICAL"
+    PHYLO = "PHYLO"
+
+class LastImportState(Enum):
+    WAITING = "WAITING"
+    PREPARING = "PREPARING"
+    DOWNLOADING = "DOWNLOADING"
+    PROCESSING = "PROCESSING"
+    DELETING = "DELETING"
+    INSERTING = "INSERTING"
+    MATCHING = "MATCHING"
+    INDEXING = "INDEXING"
+    ANALYZING = "ANALYZING"
+    ARCHIVING = "ARCHIVING"
+    EXPORTING = "EXPORTING"
+    FINISHED = "FINISHED"
+    CANCELLED = "CANCELLED"
+    FAILED = "FAILED"
+
+class Origin(Enum):
+    EXTERNAL = "EXTERNAL"
+    PROJECT = "PROJECT"
+    RELEASE = "RELEASE"
+    XRELEASE = "XRELEASE"
+
+class Type(Enum):
+    NOMENCLATURAL = "NOMENCLATURAL"
+    TAXONOMIC = "TAXONOMIC"
+    PHYLOGENETIC = "PHYLOGENETIC"
+    ARTICLE = "ARTICLE"
+    LEGAL = "LEGAL"
+    THEMATIC = "THEMATIC"
+    IDENTIFICATION = "IDENTIFICATION"
+    OTHER = "OTHER"
+
+class License(Enum):
+    CC0 = "CC0"
+    CC_BY = "CC_BY"
+    CC_BY_SA = "CC_BY_SA"
+    CC_BY_NC = "CC_BY_NC"
+    CC_BY_ND = "CC_BY_ND"
+    CC_BY_NC_SA = "CC_BY_NC_SA"
+    CC_BY_NC_ND = "CC_BY_NC_ND"
+    UNSPECIFIED = "UNSPECIFIED"
+    OTHER = "OTHER"
+
+class SortBy(Enum):
+    KEY = "KEY"
+    ALIAS = "ALIAS"
+    TITLE = "TITLE"
+    CREATOR = "CREATOR"
+    RELEVANCE = "RELEVANCE"
+    CREATED = "CREATED"
+    MODIFIED = "MODIFIED"
+    IMPORTED = "IMPORTED"
+    LAST_IMPORT_ATTEMPT = "LAST_IMPORT_ATTEMPT"
+    SIZE = "SIZE"
+
+
+@dataclass
+class DatasetFilter:
+    offset: Optional[int]
+    limit: Optional[int]
+    name: Optional[str]
+    alias: Optional[str]
+    code: Optional[Code]
+    code_is_null: Optional[bool]
+    private: Optional[bool]
+    released_from: Optional[int]
+    contributes_to: Optional[int]
+    has_source_dataset: Optional[int]
+    has_gbif_key: Optional[bool]
+    gbif_key: Optional[str]
+    gbif_publisher_key: Optional[str]
+    without_sector_in_project: Optional[int]
+    last_import_state: Optional[LastImportState]
+    editor: Optional[int]
+    reviewer: Optional[int]
+    origin: Optional[List[Origin]]
+    data_type: Optional[List[Type]]
+    checklist_license: Optional[List[License]]
+    row_type: Optional[List[object]]
+    modified: Optional[str]
+    modified_before: Optional[str]
+    modified_by: Optional[str]
+    created: Optional[str]
+    created_before: Optional[str]
+    created_by: Optional[str]
+    issued: Optional[str]
+    issued_before: Optional[str]
+    min_size: Optional[int]
+    sort_by: Optional[SortBy]
+    reverse: Optional[bool]
+
 
 # Base URL for the Catalogue of Life ChecklistBank API
 SEARCH_URL = "https://api.checklistbank.org/nameusage/search"
@@ -31,8 +135,11 @@ def get_dataset(dataset_name = None, dataset_alias = None, limit = 1000, code = 
 
     response = requests.get(DATASET_URL, params=params)
 
-    print (response.json())
-
+    try:
+        return response.json()
+    except:
+        print("There was an error parsing the file")
+        return
 
 def get_key(rank, scientific_name, limit=1):
     """
@@ -96,4 +203,4 @@ def main():
 # Run the function
 if __name__ == "__main__":
     #main()
-    get_dataset(dataset_alias="COL")
+    get_dataset(limit = 2)
