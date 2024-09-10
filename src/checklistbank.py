@@ -193,4 +193,7 @@ def main():
 # Run the function
 if __name__ == "__main__":
     #main()
-    get_dataset(limit = 2)
+    search = DatasetFilter(
+        limit=2
+    )
+    print(get_dataset(search_filters=asdict(search)))
