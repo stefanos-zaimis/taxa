@@ -3,6 +3,37 @@ import requests
 # Base URL for the Catalogue of Life ChecklistBank API
 SEARCH_URL = "https://api.checklistbank.org/nameusage/search"
 
+# URL for dataset searching
+DATASET_URL = "https://api.checklistbank.org/dataset"
+
+def get_dataset(dataset_name = None, dataset_alias = None, limit = 1000, code = None, sort_by = None, type = None):
+    """
+    Retrieve the dataset key for a requested dataset/purpose.
+    
+    Parameters:
+    dataset_name (str): The exct name of a dataset (e.g. "Catalogue of Life")
+    dataset_alias (str): the alias of a dataset (e.g. "COL")
+    limit (int): The number of results to return (default is 1000 - the maximum for checklistbank)
+    code (enum): The type of nomenclatural code a particular dataset follows (the options are: BACTERIAL, BOTANICAL, CULTIVARS, PHYTO, VIRUS, ZOOLOGICAL, PHYLO)
+    sort_by (enum): Sort the results by a given filter (options are: KEY, ALIAS, TITLE, CREATOR, RELEVANCE, CREATED, MODIFIED, IMPORTED, LAST_IMPORT_ATTEMPT, SIZE)
+    type (enum): The type of data the dataset holds (options are: NOMENCLATURAL, TAXONOMIC, PHYLOGENETIC, ARTICLE, LEGAL, THEMATIC, IDENTIFICATION, OTHER)
+    """
+
+    # Query parameters
+    params = {
+        "q": dataset_name,
+        "alias": dataset_alias,
+        "code": code,
+        "type": type,
+        "limit": limit,
+        "sortBy": sort_by
+    }
+
+    response = requests.get(DATASET_URL, params=params)
+
+    print (response.json())
+
+
 def get_key(rank, scientific_name, limit=1):
     """
     Retrieve the dataset key and taxon ID for a given rank and scientific name using the Catalogue of Life ChecklistBank API.
@@ -64,4 +95,5 @@ def main():
 
 # Run the function
 if __name__ == "__main__":
-    main()
+    #main()
+    get_dataset(dataset_alias="COL")
