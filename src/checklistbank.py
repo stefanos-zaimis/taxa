@@ -72,7 +72,7 @@ class SortBy(Enum):
 class DatasetFilter:
     offset: Optional[int] = 0
     limit: Optional[int] = 1000
-    name: Optional[str] = None
+    title: Optional[str] = None
     alias: Optional[str] = None
     code: Optional[Code] = None
     code_is_null: Optional[bool] = None
@@ -110,17 +110,15 @@ SEARCH_URL = "https://api.checklistbank.org/nameusage/search"
 # URL for dataset searching
 DATASET_URL = "https://api.checklistbank.org/dataset"
 
-def get_dataset(search_filters):
+def get_dataset(search_filters=None):
     """
-    Retrieve the dataset key for a requested dataset/purpose.
+    Retrieve a list of checklists for a requested dataset/purpose.
     
     Parameters:
-    dataset_name (str): The exct name of a dataset (e.g. "Catalogue of Life")
-    dataset_alias (str): the alias of a dataset (e.g. "COL")
-    limit (int): The number of results to return (default is 1000 - the maximum for checklistbank)
-    code (enum): The type of nomenclatural code a particular dataset follows (the options are: BACTERIAL, BOTANICAL, CULTIVARS, PHYTO, VIRUS, ZOOLOGICAL, PHYLO)
-    sort_by (enum): Sort the results by a given filter (options are: KEY, ALIAS, TITLE, CREATOR, RELEVANCE, CREATED, MODIFIED, IMPORTED, LAST_IMPORT_ATTEMPT, SIZE)
-    type (enum): The type of data the dataset holds (options are: NOMENCLATURAL, TAXONOMIC, PHYLOGENETIC, ARTICLE, LEGAL, THEMATIC, IDENTIFICATION, OTHER)
+    search_filters (dict): A dictionary of parameters used to filter datasets (default is None). This should be done via using the dataclass DatasetFilter asdict.
+
+    Returns:
+    list: A list of datasets
     """
 
     response = requests.get(DATASET_URL, params=search_filters)
