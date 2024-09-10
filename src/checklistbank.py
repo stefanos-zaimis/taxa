@@ -134,7 +134,7 @@ async def fetch_dataset_page(session, search_filters, offset):
         return data.get('result', []), data.get('total', 0)
 
 
-async def get_dataset_async(search_filters=None, size=None, max_concurrent=10):
+async def get_dataset_async(search_filters=None, size=None, max_concurrent=2):
     """
     Retrieve datasets asynchronously using aiohttp and asyncio.
     
@@ -213,7 +213,7 @@ async def main():
 
     # Run both the dataset fetch and the elapsed time tracker concurrently
     tasks = [
-        get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=10),
+        get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=2),
         print_elapsed_time()  # Track elapsed time while fetching datasets
     ]
 
