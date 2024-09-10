@@ -4,6 +4,7 @@ from typing import List, Optional
 from enum import Enum
 import asyncio
 import aiohttp
+import time
 
 class Code(Enum):
     BACTERIAL = "BACTERIAL"
@@ -193,18 +194,33 @@ async def get_dataset_async(search_filters=None, size=None, max_concurrent=10):
 
     return datasets[:total_datasets]
 
+async def print_elapsed_time():
+    """
+    Asynchronous function to print the elapsed time every second.
+    """
+    start_time = time.time()
+    while True:
+        await asyncio.sleep(1)  # Sleep for 1 second
+        elapsed_time = time.time() - start_time
+        print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
 # Example usage
-def main():
+async def main():
     search_filters = {
         'limit': 1000,  # 1000 records per request
         'offset': 0,    # Start from the beginning
     }
 
-    # Run the asyncio event loop to fetch 55k datasets as fast as possible
-    datasets = asyncio.run(get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=10))
+    # Run both the dataset fetch and the elapsed time tracker concurrently
+    tasks = [
+        get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=10),
+        print_elapsed_time()  # Track elapsed time while fetching datasets
+    ]
+
+    datasets, _ = await asyncio.gather(*tasks)
+
     print(f"Retrieved {len(datasets)} datasets.")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
