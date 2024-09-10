@@ -70,38 +70,38 @@ class SortBy(Enum):
 
 @dataclass
 class DatasetFilter:
-    offset: Optional[int]
-    limit: Optional[int]
-    name: Optional[str]
-    alias: Optional[str]
-    code: Optional[Code]
-    code_is_null: Optional[bool]
-    private: Optional[bool]
-    released_from: Optional[int]
-    contributes_to: Optional[int]
-    has_source_dataset: Optional[int]
-    has_gbif_key: Optional[bool]
-    gbif_key: Optional[str]
-    gbif_publisher_key: Optional[str]
-    without_sector_in_project: Optional[int]
-    last_import_state: Optional[LastImportState]
-    editor: Optional[int]
-    reviewer: Optional[int]
-    origin: Optional[List[Origin]]
-    data_type: Optional[List[Type]]
-    checklist_license: Optional[List[License]]
-    row_type: Optional[List[object]]
-    modified: Optional[str]
-    modified_before: Optional[str]
-    modified_by: Optional[str]
-    created: Optional[str]
-    created_before: Optional[str]
-    created_by: Optional[str]
-    issued: Optional[str]
-    issued_before: Optional[str]
-    min_size: Optional[int]
-    sort_by: Optional[SortBy]
-    reverse: Optional[bool]
+    offset: Optional[int] = 0
+    limit: Optional[int] = 1000
+    name: Optional[str] = None
+    alias: Optional[str] = None
+    code: Optional[Code] = None
+    code_is_null: Optional[bool] = None
+    private: Optional[bool] = None
+    released_from: Optional[int] = None
+    contributes_to: Optional[int] = None
+    has_source_dataset: Optional[int] = None
+    has_gbif_key: Optional[bool] = None
+    gbif_key: Optional[str] = None
+    gbif_publisher_key: Optional[str] = None
+    without_sector_in_project: Optional[int] = None
+    last_import_state: Optional[LastImportState] = None
+    editor: Optional[int] = None
+    reviewer: Optional[int] = None
+    origin: Optional[List[Origin]] = None
+    data_type: Optional[List[Type]] = None
+    checklist_license: Optional[List[License]] = None
+    row_type: Optional[List[object]] = None
+    modified: Optional[str] = None
+    modified_before: Optional[str] = None
+    modified_by: Optional[str] = None
+    created: Optional[str] = None
+    created_before: Optional[str] = None
+    created_by: Optional[str] = None
+    issued: Optional[str] = None
+    issued_before: Optional[str] = None
+    min_size: Optional[int] = None
+    sort_by: Optional[SortBy] = None
+    reverse: Optional[bool] = None
 
 
 # Base URL for the Catalogue of Life ChecklistBank API
