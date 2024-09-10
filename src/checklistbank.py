@@ -2,6 +2,8 @@ import requests
 from dataclasses import dataclass, asdict
 from typing import List, Optional
 from enum import Enum
+import asyncio
+import aiohttp
 
 class Code(Enum):
     BACTERIAL = "BACTERIAL"
@@ -91,7 +93,7 @@ class DatasetFilter:
     data_type: Optional[List[Type]] = None
     checklist_license: Optional[List[License]] = None
     row_type: Optional[List[object]] = None
-    modified: Optional[str] = None
+    modified: Optional[str] = None # Date in the form 2024-09-06
     modified_before: Optional[str] = None
     modified_by: Optional[str] = None
     created: Optional[str] = None
@@ -108,101 +110,77 @@ class DatasetFilter:
 SEARCH_URL = "https://api.checklistbank.org/nameusage/search"
 
 # URL for dataset searching
-DATASET_URL = "https://api.checklistbank.org/dataset"
+BASE_URL = "https://api.checklistbank.org/"
 
-def get_dataset(search_filters=None, size=None):
+DATASET_ENDPOINT = "dataset"
+
+def get_dataset(search_filters={}, size=None):
     """
     Retrieve a list of checklists for a requested dataset/purpose.
     
     Parameters:
-    search_filters (dict): A dictionary of parameters used to filter datasets (default is None). This should be done via using the dataclass DatasetFilter asdict.
-    size (int): The size of the list we want returned (default is None). If the list size is None, then this means we will get ALL of them.
+    search_filters (dict): A dictionary of parameters used to filter datasets (default is None). 
+                           This should be done via the DatasetFilter dataclass, using asdict.
+    size (int): The size of the list we want returned (default is None). 
+                If the list size is None, then this means we will get ALL of them.
 
     Returns:
     list: A list of datasets
     """
-    limit = search_filters['limit']
-    offset = search_filters["offset"]
 
-    response = requests.get(DATASET_URL, params=search_filters)
+    url = BASE_URL+DATASET_ENDPOINT
 
-    if response.status_code != 200:
-        print(f"Error: {response.status_code} for URL: {response.url}")
-        return None
+    limit = search_filters.get('limit', 1000)
+    offset = search_filters.get('offset', 0)
 
-    try:
-        data = response.json()
-    except:
-        print("There was an error parsing the file, maybe it's not JSON?")
-        return
+    datasets = []
+    total_fetched = 0
+    total_datasets =  None
+    id = 0
+    while True:
+        print("run ", id)
+        id+=1
+        search_filters['limit'] = min(limit,1000) # Ensure the limit is 1000 or under
+        search_filters['offset'] = offset
 
-    total_checklists = data['total'] - offset - limit
+        # Make response
+        response = requests.get(url, params=search_filters)
 
-    return data
+        # Check response validity
+        if response.status_code != 200:
+            print(f"Error: {response.status_code} for URL: {response.url}")
+            return None
 
-def get_key(rank, scientific_name, limit=1):
-    """
-    Retrieve the dataset key and taxon ID for a given rank and scientific name using the Catalogue of Life ChecklistBank API.
-
-    Parameters:
-    rank (str): The taxon rank (e.g., class, family, order).
-    scientific_name (str): The scientific name of the taxon (e.g., 'Insecta').
-    limit (int): The number of results to return (default is 1).
-
-    Returns:
-    tuple: The dataset key and taxon ID of the taxon if found, otherwise None.
-    """
-    # Query parameters for the API
-    params = {
-        "q": scientific_name,  # Query string (scientific name)
-        "limit": limit,        # Limit the number of results
-        "minRank": rank,       # Specify the rank of the taxon
-        "maxRank": rank        # Specify the rank of the taxon
-    }
-
-    # Perform the API request
-    response = requests.get(SEARCH_URL, params=params)
-
-    # Check for errors and raise if bad response
-    if response.status_code != 200:
-        print(f"Error: {response.status_code} for URL: {response.url}")
-        return None
-
-    # Parse the JSON response
-    data = response.json()
-
-    # Extract results
-    results = data.get('result', [])
-
-    if results:
-        # Extract datasetKey and ID
-        dataset_key = results[0]['usage'].get('datasetKey')
-        taxon_id = results[0]['usage'].get('id')
+        # Try parsing response
+        try:
+            data = response.json()
+        except:
+            print("Error: The file could not be parsed, maybe it's not JSON?")
+            return None
         
-        # Return both datasetKey and ID
-        return dataset_key, taxon_id
-    else:
-        print(f"No results found for {scientific_name} at rank {rank}.")
-        return None
+        # Get the datasets from the response
+        current_datasets = data.get('result', [])
+        datasets.extend(current_datasets)
+        total_fetched += len(current_datasets)
+
+        # Get the total number of checklists
+        if total_datasets is None:
+            total_datasets = data.get('total', 0)
+        
+        #Check if we fetched the requested number of datasets (or all of them if the size is None)
+        if size is not None and total_fetched >= size:
+            return datasets[:size]  # Return only the requested number of datasets
+
+        if total_fetched >= total_datasets:
+            return datasets
+        
+        offset += limit
+    return datasets
 
 # Example usage
 def main():
-    rank = 'class'              # The rank of the taxon
-    scientific_name = 'Insecta'  # The scientific name of the taxon
-
-    result = get_key(rank, scientific_name)
-    
-    if result:
-        dataset_key, taxon_id = result
-        print(f"Dataset key for {scientific_name} ({rank}): {dataset_key}")
-        print(f"Taxon ID for {scientific_name} ({rank}): {taxon_id}")
-    else:
-        print(f"Could not find dataset key or taxon ID for {scientific_name} at rank {rank}.")
+    print(len(get_dataset()))
 
 # Run the function
 if __name__ == "__main__":
-    #main()
-    search = DatasetFilter(
-        limit=2
-    )
-    print(get_dataset(search_filters=asdict(search)))
+    main()
