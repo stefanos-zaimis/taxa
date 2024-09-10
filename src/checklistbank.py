@@ -110,24 +110,35 @@ SEARCH_URL = "https://api.checklistbank.org/nameusage/search"
 # URL for dataset searching
 DATASET_URL = "https://api.checklistbank.org/dataset"
 
-def get_dataset(search_filters=None):
+def get_dataset(search_filters=None, size=None):
     """
     Retrieve a list of checklists for a requested dataset/purpose.
     
     Parameters:
     search_filters (dict): A dictionary of parameters used to filter datasets (default is None). This should be done via using the dataclass DatasetFilter asdict.
+    size (int): The size of the list we want returned (default is None). If the list size is None, then this means we will get ALL of them.
 
     Returns:
     list: A list of datasets
     """
+    limit = search_filters['limit']
+    offset = search_filters["offset"]
 
     response = requests.get(DATASET_URL, params=search_filters)
 
+    if response.status_code != 200:
+        print(f"Error: {response.status_code} for URL: {response.url}")
+        return None
+
     try:
-        return response.json()
+        data = response.json()
     except:
-        print("There was an error parsing the file")
+        print("There was an error parsing the file, maybe it's not JSON?")
         return
+
+    total_checklists = data['total'] - offset - limit
+
+    return data
 
 def get_key(rank, scientific_name, limit=1):
     """
