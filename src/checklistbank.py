@@ -111,76 +111,100 @@ SEARCH_URL = "https://api.checklistbank.org/nameusage/search"
 
 # URL for dataset searching
 BASE_URL = "https://api.checklistbank.org/"
-
 DATASET_ENDPOINT = "dataset"
 
-def get_dataset(search_filters={}, size=None):
+async def fetch_dataset_page(session, search_filters, offset):
     """
-    Retrieve a list of checklists for a requested dataset/purpose.
+    Fetch a single page of datasets asynchronously using aiohttp.
+    """
+    url = BASE_URL + DATASET_ENDPOINT
+    search_filters['offset'] = offset
+    
+    # Log before making the request
+    print(f"Making request for offset: {offset}")
+
+    async with session.get(url, params=search_filters) as response:
+        response.raise_for_status()
+        data = await response.json()
+
+        # Log after receiving the response
+        print(f"Received response for offset: {offset}")
+
+        return data.get('result', []), data.get('total', 0)
+
+
+async def get_dataset_async(search_filters=None, size=None, max_concurrent=10):
+    """
+    Retrieve datasets asynchronously using aiohttp and asyncio.
     
     Parameters:
-    search_filters (dict): A dictionary of parameters used to filter datasets (default is None). 
-                           This should be done via the DatasetFilter dataclass, using asdict.
-    size (int): The size of the list we want returned (default is None). 
-                If the list size is None, then this means we will get ALL of them.
-
+    - search_filters (dict): Parameters for filtering datasets.
+    - size (int): Number of datasets to retrieve (or None to fetch all).
+    - max_concurrent (int): Maximum number of concurrent requests.
+    
     Returns:
     list: A list of datasets
     """
+    if search_filters is None:
+        search_filters = {}
 
-    url = BASE_URL+DATASET_ENDPOINT
-
-    limit = search_filters.get('limit', 1000)
+    limit = search_filters.get('limit', 1000)  # Max limit per request is 1000
     offset = search_filters.get('offset', 0)
-
+    
     datasets = []
+    total_datasets = None
     total_fetched = 0
-    total_datasets =  None
-    id = 0
-    while True:
-        print("run ", id)
-        id+=1
-        search_filters['limit'] = min(limit,1000) # Ensure the limit is 1000 or under
-        search_filters['offset'] = offset
+    
+    async with aiohttp.ClientSession() as session:
+        # First request to get the total number of datasets and first page of results
+        initial_results, total_datasets = await fetch_dataset_page(session, search_filters, offset)
+        datasets.extend(initial_results)
+        total_fetched += len(initial_results)
 
-        # Make response
-        response = requests.get(url, params=search_filters)
+        # If we already fetched everything in the first call
+        if size is None:
+            size = total_datasets
 
-        # Check response validity
-        if response.status_code != 200:
-            print(f"Error: {response.status_code} for URL: {response.url}")
-            return None
+        if total_fetched >= size:
+            return datasets[:size]
 
-        # Try parsing response
-        try:
-            data = response.json()
-        except:
-            print("Error: The file could not be parsed, maybe it's not JSON?")
-            return None
+        # Calculate remaining offsets and schedule tasks
+        tasks = []
+        semaphore = asyncio.Semaphore(max_concurrent)
         
-        # Get the datasets from the response
-        current_datasets = data.get('result', [])
-        datasets.extend(current_datasets)
-        total_fetched += len(current_datasets)
+        async def fetch_with_semaphore(offset):
+            async with semaphore:
+                return await fetch_dataset_page(session, search_filters, offset)
 
-        # Get the total number of checklists
-        if total_datasets is None:
-            total_datasets = data.get('total', 0)
-        
-        #Check if we fetched the requested number of datasets (or all of them if the size is None)
-        if size is not None and total_fetched >= size:
-            return datasets[:size]  # Return only the requested number of datasets
+        offsets = range(offset + limit, size, limit)
+        for page_offset in offsets:
+            tasks.append(fetch_with_semaphore(page_offset))
 
-        if total_fetched >= total_datasets:
-            return datasets
-        
-        offset += limit
-    return datasets
+        # Gather all results concurrently
+        results = await asyncio.gather(*tasks)
+
+        # Extend dataset with results from all concurrent pages
+        for result in results:
+            datasets.extend(result[0])  # result[0] contains the 'result' from fetch_dataset_page
+            total_fetched += len(result[0])
+
+            if total_fetched >= size:
+                return datasets[:size]
+
+    return datasets[:total_datasets]
+
 
 # Example usage
 def main():
-    print(len(get_dataset()))
+    search_filters = {
+        'limit': 1000,  # 1000 records per request
+        'offset': 0,    # Start from the beginning
+    }
 
-# Run the function
+    # Run the asyncio event loop to fetch 55k datasets as fast as possible
+    datasets = asyncio.run(get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=10))
+    print(f"Retrieved {len(datasets)} datasets.")
+
+
 if __name__ == "__main__":
     main()
