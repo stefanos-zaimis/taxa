@@ -110,7 +110,7 @@ SEARCH_URL = "https://api.checklistbank.org/nameusage/search"
 # URL for dataset searching
 DATASET_URL = "https://api.checklistbank.org/dataset"
 
-def get_dataset(dataset_name = None, dataset_alias = None, limit = 1000, code = None, sort_by = None, type = None):
+def get_dataset(search_filters):
     """
     Retrieve the dataset key for a requested dataset/purpose.
     
@@ -123,17 +123,7 @@ def get_dataset(dataset_name = None, dataset_alias = None, limit = 1000, code = 
     type (enum): The type of data the dataset holds (options are: NOMENCLATURAL, TAXONOMIC, PHYLOGENETIC, ARTICLE, LEGAL, THEMATIC, IDENTIFICATION, OTHER)
     """
 
-    # Query parameters
-    params = {
-        "q": dataset_name,
-        "alias": dataset_alias,
-        "code": code,
-        "type": type,
-        "limit": limit,
-        "sortBy": sort_by
-    }
-
-    response = requests.get(DATASET_URL, params=params)
+    response = requests.get(DATASET_URL, params=search_filters)
 
     try:
         return response.json()
