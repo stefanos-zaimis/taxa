@@ -1,6 +1,6 @@
 from Enum import enum
 
-class Ranks(Enum):
+class Rank(Enum):
     SUPERDOMAIN:
     DOMAIN:
     SUBDOMAIN:
