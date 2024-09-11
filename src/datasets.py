@@ -149,7 +149,8 @@ async def get_dataset_async(search_filters=None, size=None, max_concurrent=2):
     if search_filters is None:
         search_filters = {}
 
-    limit = search_filters.get('limit', 1000)  # Max limit per request is 1000
+    limit = search_filters.get('limit', 1000)   # Max limit per request is 1000
+    search_filters['limit'] = min(1000, limit)
     offset = search_filters.get('offset', 0)
     
     datasets = []

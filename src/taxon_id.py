@@ -123,7 +123,7 @@ def get_exact_taxon_id(search_filters):
         print("Error: The file could not be parsed properly. Maybe it's not JSON?")
         return None
 
-def get_taxa_id_list(search_filters):
+def get_taxa_id_list(search_filters, size):
     # Extract the key from the search filters and remove it from the dict
     dataset_key = search_filters.pop("key")
     url = BASE_URL+LIST_SEARCH_ENDPOINT.format(key=dataset_key)
@@ -158,4 +158,4 @@ search_filters = TaxonListFilter(
     limit = 10,
     q = "Insecta"
 )
-print(get_taxa_id_list(search_filters=asdict(search_filters)))
+print(get_taxa_id_list(search_filters=asdict(search_filters), size=4))
