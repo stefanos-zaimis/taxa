@@ -1,7 +1,6 @@
 import requests
 from dataclasses import dataclass, asdict 
 from typing import List, Optional
-from enum import Enum
 
 @dataclass
 class TaxonFilter:
@@ -39,7 +38,19 @@ class TaxonFilter:
 
 
 BASE_URL = "https://api.checklistbank.org/"
-SEARCH_ENDPOINT = "nameusage/search"
+SEARCH_ENDPOINT = "dataset/{key}/match/nameusage"
 
-def get_taxon_id():
-    return
+def get_exact_taxon_id(search_filters):
+    url = BASE_URL+SEARCH_ENDPOINT
+
+    response = requests.get(url, params=search_filters)
+
+    if response.status_code != 200:
+        print(f"Error: {response.status_code} for URL: {response.url}")
+        return None
+
+    try:
+        return response.json()
+    except:
+        print("Error: The file could not be parsed properly. Maybe it's not JSON?")
+        return None
