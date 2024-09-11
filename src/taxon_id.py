@@ -88,8 +88,8 @@ class ExactTaxonFilter:
 @dataclass
 class TaxonListFilter:
     key: int = 3
-    offset: Optional[int] = None
-    limit: Optional[int] = None
+    offset: Optional[int] = 0
+    limit: Optional[int] = 1000 # The maximum built-in limit
     facetLimit: Optional[int] = None
     content: Optional[List[Content]] = None
     sortBy: Optional[SortBy] = None
@@ -103,10 +103,13 @@ class TaxonListFilter:
     type: Optional[DataType] = None
 
 BASE_URL = "https://api.checklistbank.org/"
-SEARCH_ENDPOINT = "dataset/{key}/match/nameusage"
+EXACT_SEARCH_ENDPOINT = "dataset/{key}/match/nameusage"
+LIST_SEARCH_ENDPOINT = "dataset/{key}/nameusage/search"
 
 def get_exact_taxon_id(search_filters):
-    url = BASE_URL+SEARCH_ENDPOINT.format(key=search_filters["key"])
+    url = BASE_URL+EXACT_SEARCH_ENDPOINT.format(key=search_filters["key"])
+
+    search_filters["limit"] = min(1000,search_filters["limit"])
 
     response = requests.get(url, params=search_filters)
 
@@ -120,8 +123,24 @@ def get_exact_taxon_id(search_filters):
         print("Error: The file could not be parsed properly. Maybe it's not JSON?")
         return None
 
-search_filters = ExactTaxonFilter(
-    key=3,
-    scientificName="Insecta"
-)
-print(get_exact_taxon_id(search_filters=asdict(search_filters)))
+def get_taxa_id_list(search_filters):
+    url = BASE_URL+LIST_SEARCH_ENDPOINT.format(key=search_filters["key"])
+    response = requests.get(url, params=search_filters)
+
+    if response.status_code != 200:
+        print(f"Error: {response.status_code} for URL: {response.url}")
+        return None
+
+    try:
+        return response.json()
+    except:
+        print("Error: The file could not be parsed properly. Maybe it's not JSON?")
+        return None
+
+
+def test_exact_taxon_id():
+    search_filters = ExactTaxonFilter(
+        key=3,
+        scientificName="Insecta"
+    )
+    print(get_exact_taxon_id(search_filters=asdict(search_filters)))
