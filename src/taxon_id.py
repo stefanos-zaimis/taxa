@@ -107,9 +107,9 @@ EXACT_SEARCH_ENDPOINT = "dataset/{key}/match/nameusage"
 LIST_SEARCH_ENDPOINT = "dataset/{key}/nameusage/search"
 
 def get_exact_taxon_id(search_filters):
-    url = BASE_URL+EXACT_SEARCH_ENDPOINT.format(key=search_filters["key"])
-
-    search_filters["limit"] = min(1000,search_filters["limit"])
+    # Extract the key from the search filters and remove it from the dict
+    dataset_key = search_filters.pop("key")
+    url = BASE_URL+EXACT_SEARCH_ENDPOINT.format(key=dataset_key)
 
     response = requests.get(url, params=search_filters)
 
@@ -124,7 +124,13 @@ def get_exact_taxon_id(search_filters):
         return None
 
 def get_taxa_id_list(search_filters):
-    url = BASE_URL+LIST_SEARCH_ENDPOINT.format(key=search_filters["key"])
+    # Extract the key from the search filters and remove it from the dict
+    dataset_key = search_filters.pop("key")
+    url = BASE_URL+LIST_SEARCH_ENDPOINT.format(key=dataset_key)
+
+    limit = search_filters.get('limit', 1000)
+    search_filters['limit'] = min(1000, limit)
+
     response = requests.get(url, params=search_filters)
 
     if response.status_code != 200:
@@ -144,3 +150,12 @@ def test_exact_taxon_id():
         scientificName="Insecta"
     )
     print(get_exact_taxon_id(search_filters=asdict(search_filters)))
+
+test_exact_taxon_id()
+
+search_filters = TaxonListFilter(
+    key = 3,
+    limit = 10,
+    q = "Insecta"
+)
+print(get_taxa_id_list(search_filters=asdict(search_filters)))
