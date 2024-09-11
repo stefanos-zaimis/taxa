@@ -1,9 +1,58 @@
 import requests
 from dataclasses import dataclass, asdict 
 from typing import List, Optional
+from ranks import Rank
+from enum import Enum
+
+class Content(Enum):
+    SCIENTIFIC_NAME = "SCIENTIFIC_NAME"
+    AUTHORSHIP = "AUTHORSHIP"
+
+class SortBy(Enum):
+    NAME = "NAME"
+    TAXONOMIC = "TAXONOMIC"
+    INDEX_NAME_ID = "INDEX_NAME_ID"
+    NATIVE = "NATIVE"
+    RELEVANCE = "RELEVANCE"
+
+class Facet(Enum):
+    USAGE_ID = "USAGE_ID"
+    DATASET_KEY = "DATASET_KEY"
+    CATALOGUE_KEY = "CATALOGUE_KEY"
+    DECISION_MODE = "DECISION_MODE"
+    FIELD = "FIELD"
+    ISSUE = "ISSUE"
+    GROUP = "GROUP"
+    NAME_ID = "NAME_ID"
+    NOM_CODE = "NOM_CODE"
+    NOM_STATUS = "NOM_STATUS"
+    PUBLISHER_KEY = "PUBLISHER_KEY"
+    RANK = "RANK"
+    PUBLISHED_IN_ID = "PUBLISHED_IN_ID"
+    SECTOR_KEY = "SECTOR_KEY"
+    SECTOR_DATASET_KEY = "SECTOR_DATASET_KEY"
+    SECTOR_PUBLISHER_KEY = "SECTOR_PUBLISHER_KEY"
+    SECTOR_MODE = "SECTOR_MODE"
+    SECONDARY_SOURCE = "SECONDARY_SOURCE"
+    SECONDARY_SOURCE_GROUP = "SECONDARY_SOURCE_GROUP"
+    STATUS = "STATUS"
+    TAXON_ID = "TAXON_ID"
+    NAME_TYPE = "NAME_TYPE"
+    EXTINCT = "EXTINCT"
+    ENVIRONMENT = "ENVIRONMENT"
+    AUTHORSHIP = "AUTHORSHIP"
+    AUTHORSHIP_YEAR = "AUTHORSHIP_YEAR"
+    ALPHAINDEX = "ALPHAINDEX"
+    ORIGIN = "ORIGIN"
+    UNSAFE = "UNSAFE"
+
+class DataType(Enum):
+    PREFIX = "PREFIX"
+    WHOLE_WORD = "WHOLE_WORDS"
+    EXACT = "EXACT"
 
 @dataclass
-class TaxonFilter:
+class ExactTaxonFilter:
     key: int = 3 # the dataset key
     id: Optional[str] = None # optional taxon id within said dataset
     q: Optional[str] = None
@@ -36,6 +85,22 @@ class TaxonFilter:
     section: Optional[str] = None
     species: Optional[str] = None
 
+@dataclass
+class TaxonListFilter:
+    key: int = 3
+    offset: Optional[int] = None
+    limit: Optional[int] = None
+    facetLimit: Optional[int] = None
+    content: Optional[List[Content]] = None
+    sortBy: Optional[SortBy] = None
+    q: Optional[str] = None
+    highlight: Optional[bool] = None
+    reverse: Optional[bool] = None
+    fuzzy: Optional[bool] = None
+    minRank: Optional[Rank] = None
+    maxRank: Optional[Rank] = None
+    facet: Optional[List[Facet]] = None
+    type: Optional[DataType] = None
 
 BASE_URL = "https://api.checklistbank.org/"
 SEARCH_ENDPOINT = "dataset/{key}/match/nameusage"
@@ -55,7 +120,7 @@ def get_exact_taxon_id(search_filters):
         print("Error: The file could not be parsed properly. Maybe it's not JSON?")
         return None
 
-search_filters = TaxonFilter(
+search_filters = ExactTaxonFilter(
     key=3,
     scientificName="Insecta"
 )
