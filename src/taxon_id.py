@@ -4,11 +4,11 @@ from typing import List, Optional
 
 @dataclass
 class TaxonFilter:
-    dataset_key: int = 3
-    taxon_id: Optional[int] = None
+    key: int = 3 # the dataset key
+    id: Optional[str] = None # optional taxon id within said dataset
     q: Optional[str] = None
     name: Optional[str] = None
-    scientific_name: Optional[str] = None
+    scientificName: Optional[str] = None
     authorship: Optional[str] = None
     code: Optional[str] = None
     rank: Optional[str] = None
@@ -41,7 +41,7 @@ BASE_URL = "https://api.checklistbank.org/"
 SEARCH_ENDPOINT = "dataset/{key}/match/nameusage"
 
 def get_exact_taxon_id(search_filters):
-    url = BASE_URL+SEARCH_ENDPOINT
+    url = BASE_URL+SEARCH_ENDPOINT.format(key=search_filters["key"])
 
     response = requests.get(url, params=search_filters)
 
@@ -54,3 +54,9 @@ def get_exact_taxon_id(search_filters):
     except:
         print("Error: The file could not be parsed properly. Maybe it's not JSON?")
         return None
+
+search_filters = TaxonFilter(
+    key=3,
+    scientificName="Insecta"
+)
+print(get_exact_taxon_id(search_filters=asdict(search_filters)))

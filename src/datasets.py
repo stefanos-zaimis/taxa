@@ -75,35 +75,35 @@ class SortBy(Enum):
 class DatasetFilter:
     offset: Optional[int] = 0
     limit: Optional[int] = 1000
-    title: Optional[str] = None
+    q: Optional[str] = None # Full title of the dataset, or whatever other parameter you want
     alias: Optional[str] = None
     code: Optional[Code] = None
-    code_is_null: Optional[bool] = None
+    codeIsNull: Optional[bool] = None
     private: Optional[bool] = None
-    released_from: Optional[int] = None
-    contributes_to: Optional[int] = None
-    has_source_dataset: Optional[int] = None
-    has_gbif_key: Optional[bool] = None
-    gbif_key: Optional[str] = None
-    gbif_publisher_key: Optional[str] = None
-    without_sector_in_project: Optional[int] = None
-    last_import_state: Optional[LastImportState] = None
+    releasedFrom: Optional[int] = None
+    contributesTo: Optional[int] = None
+    hasSourceDataset: Optional[int] = None
+    hasGbifKey: Optional[bool] = None
+    gbifKey: Optional[str] = None
+    gbifPublisherKey: Optional[str] = None
+    withoutSectorInProject: Optional[int] = None
+    lastImportState: Optional[LastImportState] = None
     editor: Optional[int] = None
     reviewer: Optional[int] = None
     origin: Optional[List[Origin]] = None
-    data_type: Optional[List[Type]] = None
-    checklist_license: Optional[List[License]] = None
-    row_type: Optional[List[object]] = None
+    type: Optional[List[Type]] = None
+    license: Optional[List[License]] = None
+    rowType: Optional[List[object]] = None
     modified: Optional[str] = None # Date in the form 2024-09-06
-    modified_before: Optional[str] = None
-    modified_by: Optional[str] = None
+    modifiedBefore: Optional[str] = None
+    modifiedBy: Optional[str] = None
     created: Optional[str] = None
-    created_before: Optional[str] = None
-    created_by: Optional[str] = None
+    createdBefore: Optional[str] = None
+    createdBy: Optional[str] = None
     issued: Optional[str] = None
-    issued_before: Optional[str] = None
-    min_size: Optional[int] = None
-    sort_by: Optional[SortBy] = None
+    issuedBefore: Optional[str] = None
+    minSize: Optional[int] = None
+    sortBy: Optional[SortBy] = None
     reverse: Optional[bool] = None
 
 
@@ -211,13 +211,13 @@ async def main():
     
     stop_timer = False  # Declare the flag as global so we can modify it
 
-    search_filters = {
-        'limit': 1000,  # 1000 records per request
-        'offset': 0,    # Start from the beginning
-    }
-
+    search_filters = DatasetFilter(
+        limit=1000,   # 1000 records per request
+        offset=0     # Start from the beginning
+    )
+        
     # Run both the dataset fetch and the elapsed time tracker concurrently
-    fetch_task = asyncio.create_task(get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=2))
+    fetch_task = asyncio.create_task(get_dataset_async(search_filters=asdict(search_filters), size=55000, max_concurrent=2))
     timer_task = asyncio.create_task(print_elapsed_time())  # Track elapsed time while fetching datasets
 
     # Wait for the dataset fetching task to complete
