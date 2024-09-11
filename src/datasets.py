@@ -199,25 +199,33 @@ async def print_elapsed_time():
     Asynchronous function to print the elapsed time every second.
     """
     start_time = time.time()
-    while True:
+    while not stop_timer:  # Stop the timer when the flag is set
         await asyncio.sleep(1)  # Sleep for 1 second
         elapsed_time = time.time() - start_time
         print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
+
 # Example usage
 async def main():
+    global stop_timer
+    
+    stop_timer = False  # Declare the flag as global so we can modify it
+
     search_filters = {
         'limit': 1000,  # 1000 records per request
         'offset': 0,    # Start from the beginning
     }
 
     # Run both the dataset fetch and the elapsed time tracker concurrently
-    tasks = [
-        get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=2),
-        print_elapsed_time()  # Track elapsed time while fetching datasets
-    ]
+    fetch_task = asyncio.create_task(get_dataset_async(search_filters=search_filters, size=55000, max_concurrent=2))
+    timer_task = asyncio.create_task(print_elapsed_time())  # Track elapsed time while fetching datasets
 
-    datasets, _ = await asyncio.gather(*tasks)
+    # Wait for the dataset fetching task to complete
+    datasets = await fetch_task
+
+    # Stop the elapsed time tracker
+    stop_timer = True
+    await timer_task  # Wait for the timer task to finish
 
     print(f"Retrieved {len(datasets)} datasets.")
 
