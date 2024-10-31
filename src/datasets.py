@@ -1,4 +1,3 @@
-import requests
 from dataclasses import dataclass, asdict
 from typing import List, Optional
 from enum import Enum
@@ -75,7 +74,7 @@ class SortBy(Enum):
 class DatasetFilter:
     offset: Optional[int] = 0
     limit: Optional[int] = 1000
-    q: Optional[str] = None # Full title of the dataset, or whatever other parameter you want
+    q: Optional[str] = None    # Full title of the dataset, or whatever other parameter you want
     alias: Optional[str] = None
     code: Optional[Code] = None
     codeIsNull: Optional[bool] = None
@@ -94,7 +93,7 @@ class DatasetFilter:
     type: Optional[List[Type]] = None
     license: Optional[List[License]] = None
     rowType: Optional[List[object]] = None
-    modified: Optional[str] = None # Date in the form 2024-09-06
+    modified: Optional[str] = None    # Date in the form 2024-09-06
     modifiedBefore: Optional[str] = None
     modifiedBy: Optional[str] = None
     created: Optional[str] = None

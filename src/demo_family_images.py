@@ -1,6 +1,7 @@
-import quinsectz as qi
-import image_scraper as img
 import random
+
+import image_scraper as img
+import quinsectz as qi
 
 # Define the class name
 class_name = "Insecta"
@@ -12,7 +13,7 @@ family_list = qi.families_in_class(class_name)
 random_family = random.choice(family_list)
 
 # Print the randomly selected family's name
-print("Randomly selected family:", random_family['scientificName'])
+    print("Randomly selected family:", random_family['scientificName'])
 
 #Get Image
 usage_key = random_family['key']
