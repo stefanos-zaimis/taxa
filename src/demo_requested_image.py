@@ -64,15 +64,21 @@ def show_question(image_path, choices, correct_family):
     # Function to load a new question
     def load_new_question():
         quiz.destroy()  # Close the current quiz window
-        quiz_logic(
-            name, taxonomic_level
-        )  # Reload quiz logic with the same taxon selection
+        if name=="" and taxonomic_level=="":
+            quiz_logic()
+        else:
+            quiz_logic(
+                name=name, taxonomic_level=taxonomic_level
+            )  # Reload quiz logic with the same taxon selection
+
 
     # Button to load a new question, aligned below result label
     new_question_button = tk.Button(
         choices_frame, text="New Question", command=load_new_question
     )
     new_question_button.pack(pady=20)
+
+    quiz.bind('<Return>', lambda event: load_new_question())
 
     # Function to label the image
     def label_image_with(tag):
@@ -179,6 +185,10 @@ error_label.pack()
 
 start_button = tk.Button(root, text="Start Quiz", command=start_quiz)
 start_button.pack(pady=10)
+
+# Bind the Enter key to the function
+root.bind('<Return>', lambda event: start_quiz())
+
 
 # Run the class selection window
 root.mainloop()

@@ -38,7 +38,7 @@ def select_random_image(taxon_key, limit=100000):
                     for media in occurrence['media']:
                         scientific_name = occurrence.get('species', 'Unidentified species')
                         image_url = media.get('identifier')
-                        if image_url:
+                        if image_url and image_url.startswith("http"):
                             results.append((scientific_name, image_url))
 
                         if results and len(results) >= limit:
@@ -87,7 +87,7 @@ def request_images(taxon_key, image_number=10):
                     for media in occurrence['media']:
                         scientific_name = occurrence.get('species', 'Unidentified species')
                         image_url = media.get('identifier')
-                        if image_url:
+                        if image_url and image_url.startswith("http"):
                             results.append((scientific_name, image_url))
                         if len(results) >= image_number:
                             return results
@@ -107,10 +107,10 @@ def save_image (image_info):
     """
     scientific_name = image_info[0]
     image_url = image_info [1]
+    print(image_url)
 
     # Create an "images" directory if it doesn't exist
-    if not os.path.exists('images'):
-        os.makedirs('images')
+    os.makedirs('images', exist_ok=True)
     
     # Get the image content
     try:
