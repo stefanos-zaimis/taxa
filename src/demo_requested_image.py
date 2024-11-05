@@ -74,6 +74,18 @@ def show_question(image_path, choices, correct_family):
     )
     new_question_button.pack(pady=20)
 
+    # Function to label the image
+    def label_image_with(tag):
+        imgr.label_image(species_name, image_path, tag)
+
+    # Label buttons
+    label_frame = tk.Frame(choices_frame)
+    label_frame.pack(pady=20)
+    tk.Button(label_frame, text="Good", command=lambda: label_image_with("good")).pack(side="left", padx=5)
+    tk.Button(label_frame, text="Medium", command=lambda: label_image_with("medium")).pack(side="left", padx=5)
+    tk.Button(label_frame, text="Bad", command=lambda: label_image_with("bad")).pack(side="left", padx=5)
+    tk.Button(label_frame, text="Unusable", command=lambda: label_image_with("unusable")).pack(side="left", padx=5)
+    
     # Start the tkinter main loop for the quiz window
     quiz.mainloop()
 
@@ -109,7 +121,7 @@ def quiz_logic(name="Insecta", taxonomic_level="class"):
         image_info = imgr.select_random_image(usage_key)
         if image_info:
             species_name = image_info[0]
-            imgr.save_image(image_info, 0)
+            imgr.save_image(image_info)
 
     print(
         "Species name is: ------------------------------ "
@@ -130,7 +142,7 @@ def quiz_logic(name="Insecta", taxonomic_level="class"):
     random.shuffle(choices)  # Shuffle the options
 
     # Assuming the image was saved in worker.py
-    image_path = os.path.join("images", species_name.replace(" ", "_") + "_0.jpg")
+    image_path = os.path.join("images", species_name.replace(" ", "_") + ".jpg")
 
     # Display the GUI
     show_question(image_path, choices, family["scientificName"])

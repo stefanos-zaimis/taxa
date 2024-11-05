@@ -98,14 +98,12 @@ def request_images(taxon_key, image_number=10):
         print(f"An error occurred: {e}")
         return []
 
-def save_image (image_info, image_index):
+def save_image (image_info):
     """
     Downloads and saves the image from the provided URL into the 'images' directory.
     
     Params:
     image_info (tuple): A tuple containing the scientific name and image URL.
-    scientific_name (str): The scientific name of the species to be used as part of the image filename.
-    image_index (int): An index to differentiate images if there are multiple for the same species.
     """
     scientific_name = image_info[0]
     image_url = image_info [1]
@@ -120,7 +118,7 @@ def save_image (image_info, image_index):
         response.raise_for_status()  # Check for errors in the response
         
         # Format the image filename based on the scientific name and index
-        image_filename = f"images/{scientific_name.replace(' ', '_')}_{image_index}.jpg"
+        image_filename = f"images/{scientific_name.replace(' ', '_')}.jpg"
         
         # Save the image
         with open(image_filename, 'wb') as img_file:
@@ -130,3 +128,22 @@ def save_image (image_info, image_index):
     
     except requests.exceptions.RequestException as e:
         print(f"Failed to download {image_url}: {e}")
+
+def label_image(species_name, image_path, image_label):
+    directory, filename = os.path.split(image_path)
+    name, extension = os.path.splitext(filename)
+
+    # Construct the initial path with the label
+    new_filename = f"{name}_{image_label}{extension}"
+    new_path = os.path.join(directory, new_filename)
+
+    # Check if the file exists and modify the name to avoid overwriting
+    counter = 1
+    while os.path.exists(new_path):
+        new_filename = f"{name}_{image_label}_{counter}{extension}"
+        new_path = os.path.join(directory, new_filename)
+        counter += 1
+
+    # Rename the image with the unique filename
+    os.rename(image_path, new_path)
+
