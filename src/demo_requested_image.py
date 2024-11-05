@@ -90,7 +90,7 @@ def show_question(image_path, choices, correct_family):
     quiz.mainloop()
 
 
-def quiz_logic(name="Insecta", taxonomic_level="class"):
+def quiz_logic(name="Hymenoptera", taxonomic_level="Order"):
     global species_name, family, other_choices
     # Main loop
     species_name = ""
@@ -155,19 +155,22 @@ def start_quiz():
     taxonomic_level = level_entry.get()
     # if class_name:  # Only proceed if a class is entered
     root.destroy()  # Close the class selection window
-    quiz_logic(
-        name=name, taxonomic_level=taxonomic_level
-    )  # Call the main quiz function
+    if name=="" and taxonomic_level=="":
+        quiz_logic()
+    else:
+        quiz_logic(
+            name=name, taxonomic_level=taxonomic_level
+        )  # Call the main quiz function
     # else:
     #    error_label.config(text="Please enter a class name.")
 
 
 # Set up the class selection window
-tk.Label(root, text="Enter a desired taxon name (Default is 'Insecta'").pack(pady=10)
+tk.Label(root, text="Enter a desired taxon name (Default is 'Hymenoptera'").pack(pady=10)
 name_entry = tk.Entry(root)
 name_entry.pack(pady=5)
 
-tk.Label(root, text="Enter the taxonomic level (Default is 'Class'):").pack(pady=10)
+tk.Label(root, text="Enter the taxonomic level (Default is 'Order'):").pack(pady=10)
 level_entry = tk.Entry(root)
 level_entry.pack(pady=5)
 
