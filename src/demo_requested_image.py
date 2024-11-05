@@ -80,17 +80,26 @@ def show_question(image_path, choices, correct_family):
 
     quiz.bind('<Return>', lambda event: load_new_question())
 
-    # Function to label the image
+     # Function to apply labels
     def label_image_with(tag):
-        imgr.label_image(species_name, image_path, tag)
+        nonlocal image_path
+        image_path = imgr.label_image(species_name, image_path, tag)
 
-    # Label buttons
-    label_frame = tk.Frame(choices_frame)
-    label_frame.pack(pady=20)
-    tk.Button(label_frame, text="Good", command=lambda: label_image_with("good")).pack(side="left", padx=5)
-    tk.Button(label_frame, text="Medium", command=lambda: label_image_with("medium")).pack(side="left", padx=5)
-    tk.Button(label_frame, text="Bad", command=lambda: label_image_with("bad")).pack(side="left", padx=5)
-    tk.Button(label_frame, text="Unusable", command=lambda: label_image_with("unusable")).pack(side="left", padx=5)
+    # Quality buttons
+    quality_frame = tk.Frame(choices_frame)
+    quality_frame.pack(pady=10)
+    tk.Label(quality_frame, text="Quality:").pack()
+    tk.Button(quality_frame, text="Good", command=lambda: label_image_with("good")).pack(side="left", padx=5)
+    tk.Button(quality_frame, text="Medium", command=lambda: label_image_with("medium")).pack(side="left", padx=5)
+    tk.Button(quality_frame, text="Bad", command=lambda: label_image_with("bad")).pack(side="left", padx=5)
+    tk.Button(quality_frame, text="Unusable", command=lambda: label_image_with("unusable")).pack(side="left", padx=5)
+
+    # Stage buttons
+    stage_frame = tk.Frame(choices_frame)
+    stage_frame.pack(pady=10)
+    tk.Label(stage_frame, text="Stage:").pack()
+    tk.Button(stage_frame, text="Larva", command=lambda: label_image_with("larva")).pack(side="left", padx=5)
+    tk.Button(stage_frame, text="Imago", command=lambda: label_image_with("imago")).pack(side="left", padx=5)
     
     # Start the tkinter main loop for the quiz window
     quiz.mainloop()

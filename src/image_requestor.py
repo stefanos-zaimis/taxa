@@ -1,6 +1,7 @@
 import requests
 import os
 import random
+import re
 
 def select_random_image(taxon_key, limit=100000):
     """
@@ -87,7 +88,7 @@ def request_images(taxon_key, image_number=10):
                     for media in occurrence['media']:
                         scientific_name = occurrence.get('species', 'Unidentified species')
                         image_url = media.get('identifier')
-                        if image_url and image_url.startswith("http"):
+                        if image_url and image_url.startswith("http") and not image_url == '':
                             results.append((scientific_name, image_url))
                         if len(results) >= image_number:
                             return results
@@ -133,17 +134,21 @@ def label_image(species_name, image_path, image_label):
     directory, filename = os.path.split(image_path)
     name, extension = os.path.splitext(filename)
 
-    # Construct the initial path with the label
+    # Remove any existing occurrence of the label type to avoid duplicates
+    name = re.sub(rf"(_{image_label}|_{image_label}_\d+)", "", name)
+
+    # Construct the new filename with the label appended
     new_filename = f"{name}_{image_label}{extension}"
     new_path = os.path.join(directory, new_filename)
 
-    # Check if the file exists and modify the name to avoid overwriting
+    # Check if a file with the same name exists and increment if necessary
     counter = 1
     while os.path.exists(new_path):
         new_filename = f"{name}_{image_label}_{counter}{extension}"
         new_path = os.path.join(directory, new_filename)
         counter += 1
 
-    # Rename the image with the unique filename
-    os.rename(image_path, new_path)
-
+    # Rename or duplicate the image with the new filename
+    os.rename(image_path, new_path)  # Or `shutil.copy` if you want to keep the original
+    print(f"Image saved as: {new_path}")
+    return new_path  # Return the new path for consistent reference
